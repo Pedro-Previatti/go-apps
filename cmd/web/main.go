@@ -14,25 +14,37 @@ const portNumber = ":8080"
 
 // main is the main application function
 func main() {
+	// app configuration
 	var app config.AppConfig
 
+	// create template cache
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("cannot create template cache")
 	}
 
+	// set template cache
 	app.TemplateCache = tc
 	app.UseCache = false
 
+	// create new repo
 	repo := handlers.NewRepo(&app)
+
+	// create new handler
 	handlers.NewHandler(repo)
 
+	// set template configuration
 	render.NewTemplates(&app)
 
-	http.HandleFunc("/", handlers.Repo.Home)
-	http.HandleFunc("/about", handlers.Repo.About)
+	fmt.Println("application started")
+	fmt.Println("running application on port : " + portNumber)
 
-	fmt.Println(fmt.Sprintf("application started \nrunning on port%s", portNumber))
-	// listens to port 8080
-	_ = http.ListenAndServe(portNumber, nil)
+	// create http server
+	srv := &http.Server{
+		Addr:    portNumber,
+		Handler: routes(&app),
+	}
+
+	err = srv.ListenAndServe()
+	log.Fatal(err)
 }
