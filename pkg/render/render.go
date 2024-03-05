@@ -6,39 +6,49 @@ import (
 	"net/http"
 	"path/filepath"
 	"text/template"
+
+	"github.com/Pedro-Previatti/go-apps/pkg/config"
 )
 
-// renderTemplate is a function to open and render go templates
+var app *config.AppConfig
+
+// NewTemplates sets the config for the template package
+func NewTemplates(a *config.AppConfig) {
+	app = a
+}
+
+// RenderTemplate is a function to open and render go templates
 func RenderTemplate(w http.ResponseWriter, tmpl string) {
-	// create tc, a template cache
-	tc, err := createTemplateCache()
-	if err != nil {
-		log.Fatal(err) // kills application if we cannot load the templates
+	var tc map[string]*template.Template
+
+	// not to use in production, only needed to dev mode to test changes in the app
+	if app.UseCache {
+		// get template cache from cache config
+		tc = app.TemplateCache
+	} else {
+		tc, _ = CreateTemplateCache()
 	}
 
 	// get requested t, template from cache
 	t, ok := tc[tmpl] // get template from the cache with its name
 	if !ok {
-		log.Fatal(err) // if ok == false then we kill application
+		log.Fatal("Could not get template from template cache") // if ok == false then we kill application
 	}
 
-	// this step is created to check if there is any error from the values stored
 	// in the template cache
 	buffer := new(bytes.Buffer) // var to hold bytes
-	err = t.Execute(buffer, nil)
-	if err != nil {
-		log.Println(err)
-	}
+
+	_ = t.Execute(buffer, nil)
 
 	// render template
-	_, err = buffer.WriteTo(w)
+	_, err := buffer.WriteTo(w)
 	if err != nil {
-		log.Println(err)
+		log.Println("Error writing template to browser", err)
 	}
 }
 
-// createTemplateCache function creates a cache to store all templates
-func createTemplateCache() (map[string]*template.Template, error) {
+// CreateTemplateCache function creates a cache to store all templates
+func CreateTemplateCache() (map[string]*template.Template, error) {
 	// cache := make(map[string]*template.Template)
 	cache := map[string]*template.Template{} // other way to create a map for cache
 
