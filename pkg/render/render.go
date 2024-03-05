@@ -8,6 +8,7 @@ import (
 	"text/template"
 
 	"github.com/Pedro-Previatti/go-apps/pkg/config"
+	"github.com/Pedro-Previatti/go-apps/pkg/models"
 )
 
 var app *config.AppConfig
@@ -17,8 +18,12 @@ func NewTemplates(a *config.AppConfig) {
 	app = a
 }
 
+func addDefaultData(td *models.TemplateData) *models.TemplateData {
+	return td
+}
+
 // RenderTemplate is a function to open and render go templates
-func RenderTemplate(w http.ResponseWriter, tmpl string) {
+func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
 	var tc map[string]*template.Template
 
 	// not to use in production, only needed to dev mode to test changes in the app
@@ -38,7 +43,7 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 	// in the template cache
 	buffer := new(bytes.Buffer) // var to hold bytes
 
-	_ = t.Execute(buffer, nil)
+	_ = t.Execute(buffer, td) // execute the template
 
 	// render template
 	_, err := buffer.WriteTo(w)
