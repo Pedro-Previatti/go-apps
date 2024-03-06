@@ -4,18 +4,36 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/Pedro-Previatti/go-apps/pkg/config"
 	"github.com/Pedro-Previatti/go-apps/pkg/handlers"
 	"github.com/Pedro-Previatti/go-apps/pkg/render"
+	"github.com/alexedwards/scs/v2"
 )
 
+// sets the default port
 const portNumber = ":8080"
+
+// app configuration
+var app config.AppConfig
+
+// sets the session
+var session *scs.SessionManager
 
 // main is the main application function
 func main() {
-	// app configuration
-	var app config.AppConfig
+
+	// change to true when in production
+	app.InProduction = false
+
+	session = scs.New()
+	session.Lifetime = 24 * time.Hour
+	session.Cookie.Persist = true
+	session.Cookie.SameSite = http.SameSiteLaxMode
+	session.Cookie.Secure = app.InProduction
+
+	app.Session = session
 
 	// create template cache
 	tc, err := render.CreateTemplateCache()

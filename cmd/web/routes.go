@@ -9,13 +9,17 @@ import (
 	"github.com/go-chi/chi/middleware"
 )
 
+// routes contains all application routes
 func routes(app *config.AppConfig) http.Handler {
 	// creating a new instance of the chi router
 	mux := chi.NewRouter()
 
 	// attach the Recoverer middleware to recover from panics
 	mux.Use(middleware.Recoverer)
+	// attach the nosurf middleware
 	mux.Use(NoSurf)
+	// attach the session load middleware
+	mux.Use(SessionLoad)
 
 	// defining routes
 	mux.Get("/", handlers.Repo.Home)
