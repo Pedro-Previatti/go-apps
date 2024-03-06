@@ -15,7 +15,7 @@ func routes(app *config.AppConfig) http.Handler {
 
 	// attach the Recoverer middleware to recover from panics
 	mux.Use(middleware.Recoverer)
-	mux.Use(WriteToConsole)
+	mux.Use(NoSurf)
 
 	// defining routes
 	mux.Get("/", handlers.Repo.Home)
