@@ -27,12 +27,13 @@ func main() {
 	// change to true when in production
 	app.InProduction = false
 
-	session = scs.New()
-	session.Lifetime = 24 * time.Hour
-	session.Cookie.Persist = true
-	session.Cookie.SameSite = http.SameSiteLaxMode
-	session.Cookie.Secure = app.InProduction
+	session = scs.New()                            // creates new session from scs package
+	session.Lifetime = 24 * time.Hour              // sets lifetime to 24 hours
+	session.Cookie.Persist = true                  // persisting session cookies
+	session.Cookie.SameSite = http.SameSiteLaxMode // allows cookies to be sent with GET requests
+	session.Cookie.Secure = app.InProduction       // sets the Secure attribute to true if app is not in production
 
+	// configure the session inside the app configuration
 	app.Session = session
 
 	// create template cache
